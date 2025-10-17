@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>DOCX Шаблонизатор</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Общие стили */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: #1f2937;
+        }
+
+        label {
+            font-weight: 600;
+            margin-top: 10px;
+            display: block;
+        }
+
+        input,
+        button,
+        select {
+            padding: 10px;
+            margin-top: 5px;
+            width: 100%;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        button {
+            cursor: pointer;
+            background-color: #4f46e5;
+            color: #fff;
+            border: none;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #4338ca;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .template {
+            border: 1px solid #e0e0e0;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 10px;
+            position: relative;
+            background: #fafafa;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .template:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .template h3 {
+            margin-bottom: 10px;
+        }
+
+        .form-container {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .form-container.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #e0e0e0;
+            margin: 40px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="section">
+            <h2>Загрузка шаблона и формы</h2>
+            <form id="uploadForm">
+                <label>Шаблон (.docx)</label>
+                <input type="file" name="docx_file" required>
+                <label>Описание формы (.json)</label>
+                <input type="file" name="form_json" required>
+                <button type="submit">Загрузить</button>
+            </form>
+        </div>
+
+        <hr>
+
+        <div class="section">
+            <h2>Доступные шаблоны</h2>
+            <div id="templates"></div>
+        </div>
+    </div>
+
+    <script>
+        async function loadTemplates() {
+            const res = await fetch('/templates/');
+            const data = await res.json();
+            const container = document.getElementById('templates');
+            container.innerHTML = '';
+            data.forEach(t => {
+                const div = document.createElement('div');
+                div.className = 'template';
+                div.innerHTML = `<h3>${t.name}</h3>
+          <button onclick="toggleForm('${t.name}', this)">Заполнить шаблон</button>
+          <div id="form_${t.name}" class="form-container"></div>`;
+                container.appendChild(div);
+            });
+        }
+
+        async function toggleForm(name, btn) {
+            const formDiv = document.getElementById(`form_${name}`);
+            if (formDiv.classList.contains('active')) {
+                formDiv.classList.remove('active');
+                btn.textContent = 'Заполнить шаблон';
+                return;
+            }
+
+            const res = await fetch(`/templates/${name}/form`);
+            const form = await res.json();
+
+            let html = `<form id="form_${name}_inner">`;
+            for (const key in form) {
+                html += `<label>${form[key].label}</label>
+                 <input name="${key}" placeholder="${form[key].hint}" type="${form[key].type || 'text'}" value="${form[key].default || ''}">`;
+            }
+            html += `<button type="submit">Сгенерировать DOCX</button></form>`;
+            formDiv.innerHTML = html;
+            formDiv.classList.add('active');
+            btn.textContent = 'Скрыть форму';
+
+            document.getElementById(`form_${name}_inner`).onsubmit = async (e) => {
+                e.preventDefault();
+                const data = {};
+                new FormData(e.target).forEach((v, k) => data[k] = v);
+                const fd = new FormData();
+                fd.append("data", JSON.stringify(data));
+                const res = await fetch(`/generate/${name}`, { method: "POST", body: fd });
+                const blob = await res.blob();
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `${name}_result.docx`;
+                link.click();
+            };
+        }
+
+        document.getElementById('uploadForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            await fetch('/upload-template/', { method: 'POST', body: fd });
+            loadTemplates();
+        };
+
+        loadTemplates();
+    </script>
+</body>
+
+</html>
