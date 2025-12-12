@@ -1,0 +1,2066 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOCX Template Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --success-color: #4cc9f0;
+            --danger-color: #f72585;
+            --warning-color: #f8961e;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --gray-color: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+        }
+
+        .api-config {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--light-color);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .api-config input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .api-config input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #3ab8d9;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e11570;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #e6890e;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+            min-height: calc(100vh - 180px);
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .sidebar-section h3 {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-color);
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-section h3 i {
+            font-size: 1.2rem;
+        }
+
+        .collection-list {
+            list-style: none;
+        }
+
+        .collection-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: var(--light-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+        }
+
+        .collection-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .collection-item.active {
+            background: rgba(67, 97, 238, 0.1);
+            border-left-color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .collection-name {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .collection-desc {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+        }
+
+        .content-area {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+
+        .tab-navigation {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--light-color);
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-color);
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 3px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .file-upload {
+            border: 2px dashed #e0e0e0;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .file-upload:hover {
+            border-color: var(--primary-color);
+            background: rgba(67, 97, 238, 0.05);
+        }
+
+        .file-upload i {
+            font-size: 3rem;
+            color: var(--gray-color);
+            margin-bottom: 15px;
+        }
+
+        .file-upload input {
+            display: none;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .template-card {
+            background: var(--light-color);
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .template-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .template-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .template-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .template-filename {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+        }
+
+        .template-vars {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .var-badge {
+            background: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 1px solid #e0e0e0;
+        }
+
+        .var-badge.text {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .var-badge.checkbox {
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .variables-list {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .variable-item {
+            background: var(--light-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .variable-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .variable-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+        }
+
+        .variable-type {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .variable-type.text {
+            background: rgba(76, 201, 240, 0.2);
+            color: #4cc9f0;
+        }
+
+        .variable-type.checkbox {
+            background: rgba(248, 150, 30, 0.2);
+            color: #f8961e;
+        }
+
+        .variable-context {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #e0e0e0;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary-color);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray-color);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #e0e0e0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--box-shadow);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--dark-color);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray-color);
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--danger-color);
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background: rgba(76, 201, 240, 0.1);
+            border-left: 4px solid var(--success-color);
+            color: #0c5460;
+        }
+
+        .alert-error {
+            background: rgba(247, 37, 133, 0.1);
+            border-left: 4px solid var(--danger-color);
+            color: #721c24;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-success {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .toast-error {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .sidebar.active {
+                display: flex;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 300px;
+                height: 100%;
+                z-index: 100;
+            }
+
+            .mobile-menu-btn {
+                display: block !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .api-config {
+                max-width: 100%;
+            }
+
+            .tab-navigation {
+                flex-wrap: wrap;
+            }
+
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-file-word"></i>
+                <h1>DOCX Template Manager</h1>
+            </div>
+
+            <div class="api-config">
+                <input type="text" id="api-url" placeholder="URL API (например: http://localhost:8000)"
+                    value="http://localhost:8000">
+                <button class="btn btn-primary" id="test-api">
+                    <i class="fas fa-plug"></i> Проверить
+                </button>
+            </div>
+
+            <button class="mobile-menu-btn" id="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </header>
+
+        <div class="main-content">
+            <div class="sidebar" id="sidebar">
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-folder"></i> Коллекции</h3>
+                    <button class="btn btn-primary btn-small" id="new-collection-btn"
+                        style="width: 100%; margin-bottom: 15px;">
+                        <i class="fas fa-plus"></i> Новая коллекция
+                    </button>
+                    <ul class="collection-list" id="collection-list">
+                        <!-- Коллекции будут загружены здесь -->
+                    </ul>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-info-circle"></i> Статус</h3>
+                    <div id="status-info">
+                        <p>Подключитесь к API</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="tab-navigation">
+                    <button class="tab-btn active" data-tab="templates">
+                        <i class="fas fa-file-alt"></i> Шаблоны
+                    </button>
+                    <button class="tab-btn" data-tab="variables">
+                        <i class="fas fa-list"></i> Переменные
+                    </button>
+                    <button class="tab-btn" data-tab="render">
+                        <i class="fas fa-magic"></i> Рендеринг
+                    </button>
+                    <button class="tab-btn" data-tab="batch">
+                        <i class="fas fa-layer-group"></i> Пакетный рендеринг
+                    </button>
+                </div>
+
+                <!-- Вкладка Шаблоны -->
+                <div class="tab-content active" id="templates-tab">
+                    <div id="templates-content">
+                        <h2 style="margin-bottom: 20px;">Шаблоны коллекции</h2>
+                        <button class="btn btn-primary" id="upload-template-btn">
+                            <i class="fas fa-upload"></i> Загрузить шаблон
+                        </button>
+                        <div class="template-grid" id="templates-grid">
+                            <!-- Шаблоны будут загружены здесь -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Вкладка Переменные -->
+                <div class="tab-content" id="variables-tab">
+                    <div id="variables-content">
+                        <h2 style="margin-bottom: 20px;">Переменные коллекции</h2>
+                        <div id="variables-list" class="variables-list">
+                            <!-- Переменные будут загружены здесь -->
+                        </div>
+                        <div style="margin-top: 30px;">
+                            <button class="btn btn-success" id="save-variables-btn">
+                                <i class="fas fa-save"></i> Сохранить все переменные
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Вкладка Рендеринг -->
+                <div class="tab-content" id="render-tab">
+                    <div id="render-content">
+                        <h2 style="margin-bottom: 20px;">Рендеринг документа</h2>
+                        <div class="form-group">
+                            <label>Выберите шаблон:</label>
+                            <select class="form-control" id="render-template-select">
+                                <!-- Шаблоны будут загружены здесь -->
+                            </select>
+                        </div>
+
+                        <div id="render-variables-form">
+                            <!-- Форма переменных для рендеринга -->
+                        </div>
+
+                        <div style="margin-top: 30px;">
+                            <button class="btn btn-success" id="render-btn">
+                                <i class="fas fa-play"></i> Запустить рендеринг
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Вкладка Пакетный рендеринг -->
+                <div class="tab-content" id="batch-tab">
+                    <div id="batch-content">
+                        <h2 style="margin-bottom: 20px;">Пакетный рендеринг</h2>
+
+                        <div class="form-group">
+                            <label>Выберите шаблоны для рендеринга:</label>
+                            <div id="batch-templates-checkboxes">
+                                <!-- Чекбоксы шаблонов -->
+                            </div>
+                        </div>
+
+                        <div id="batch-variables-form">
+                            <!-- Форма переменных для пакетного рендеринга -->
+                        </div>
+
+                        <div style="margin-top: 30px;">
+                            <button class="btn btn-success" id="batch-render-btn">
+                                <i class="fas fa-play-circle"></i> Запустить пакетный рендеринг
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно новой коллекции -->
+    <div class="modal" id="new-collection-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-folder-plus"></i> Новая коллекция</h3>
+                <button class="modal-close" id="close-collection-modal">&times;</button>
+            </div>
+            <form id="new-collection-form">
+                <div class="form-group">
+                    <label for="collection-name">Название коллекции *</label>
+                    <input type="text" class="form-control" id="collection-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="collection-desc">Описание</label>
+                    <textarea class="form-control" id="collection-desc" rows="3"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-outline" id="cancel-collection">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Создать коллекцию</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно загрузки шаблона -->
+    <div class="modal" id="upload-template-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-upload"></i> Загрузить шаблон</h3>
+                <button class="modal-close" id="close-template-modal">&times;</button>
+            </div>
+            <form id="upload-template-form">
+                <div class="form-group">
+                    <label for="template-name">Название шаблона *</label>
+                    <input type="text" class="form-control" id="template-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Файл шаблона (.docx) *</label>
+                    <div class="file-upload" id="file-upload-area">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Перетащите файл сюда или нажмите для выбора</p>
+                        <p style="font-size: 0.9rem; color: var(--gray-color); margin-top: 10px;">
+                            Поддерживается только формат .docx
+                        </p>
+                        <input type="file" id="template-file" accept=".docx" required>
+                    </div>
+                    <div id="selected-file" style="margin-top: 10px; display: none;">
+                        <p><i class="fas fa-file-word"></i> <span id="file-name"></span></p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-outline" id="cancel-template">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Загрузить шаблон</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно метаданных переменной -->
+    <div class="modal" id="variable-metadata-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-cog"></i> Настройки переменной</h3>
+                <button class="modal-close" id="close-metadata-modal">&times;</button>
+            </div>
+            <form id="variable-metadata-form">
+                <input type="hidden" id="metadata-var-name">
+                <div class="form-group">
+                    <label for="metadata-display-name">Отображаемое имя *</label>
+                    <input type="text" class="form-control" id="metadata-display-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="metadata-description">Описание</label>
+                    <textarea class="form-control" id="metadata-description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="metadata-required">
+                        <label for="metadata-required">Обязательная переменная</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="metadata-ui-order">Порядок в UI</label>
+                    <input type="number" class="form-control" id="metadata-ui-order" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="metadata-category">Категория</label>
+                    <input type="text" class="form-control" id="metadata-category" value="general">
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-outline" id="cancel-metadata">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить настройки</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Уведомления -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Загрузчик -->
+    <div class="modal" id="loading-modal">
+        <div class="modal-content" style="text-align: center;">
+            <div class="loading">
+                <i class="fas fa-spinner"></i>
+                <p id="loading-text">Загрузка...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Конфигурация
+        let API_URL = "http://localhost:8000";
+        let currentCollectionId = null;
+        let collections = [];
+        let templates = [];
+        let variables = {};
+
+        // DOM элементы
+        const elements = {
+            apiUrlInput: document.getElementById('api-url'),
+            testApiBtn: document.getElementById('test-api'),
+            newCollectionBtn: document.getElementById('new-collection-btn'),
+            collectionList: document.getElementById('collection-list'),
+            uploadTemplateBtn: document.getElementById('upload-template-btn'),
+            templatesGrid: document.getElementById('templates-grid'),
+            variablesList: document.getElementById('variables-list'),
+            saveVariablesBtn: document.getElementById('save-variables-btn'),
+            renderTemplateSelect: document.getElementById('render-template-select'),
+            renderVariablesForm: document.getElementById('render-variables-form'),
+            renderBtn: document.getElementById('render-btn'),
+            batchTemplatesCheckboxes: document.getElementById('batch-templates-checkboxes'),
+            batchVariablesForm: document.getElementById('batch-variables-form'),
+            batchRenderBtn: document.getElementById('batch-render-btn'),
+            tabBtns: document.querySelectorAll('.tab-btn'),
+            tabContents: document.querySelectorAll('.tab-content'),
+            sidebar: document.getElementById('sidebar'),
+            mobileMenuBtn: document.getElementById('mobile-menu-btn'),
+            statusInfo: document.getElementById('status-info'),
+            toast: document.getElementById('toast'),
+            loadingModal: document.getElementById('loading-modal'),
+            loadingText: document.getElementById('loading-text')
+        };
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function () {
+            init();
+        });
+
+        function init() {
+            // Устанавливаем URL API из сохраненных данных или из поля ввода
+            const savedApiUrl = localStorage.getItem('docx_api_url');
+            if (savedApiUrl) {
+                API_URL = savedApiUrl;
+                elements.apiUrlInput.value = savedApiUrl;
+            }
+
+            // Обработчики событий
+            setupEventListeners();
+
+            // Проверяем подключение к API
+            testApiConnection();
+        }
+
+        function setupEventListeners() {
+            // Тестирование API
+            elements.testApiBtn.addEventListener('click', testApiConnection);
+            elements.apiUrlInput.addEventListener('change', saveApiUrl);
+
+            // Навигация по вкладкам
+            elements.tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabId = btn.getAttribute('data-tab');
+                    switchTab(tabId);
+                });
+            });
+
+            // Мобильное меню
+            elements.mobileMenuBtn.addEventListener('click', () => {
+                elements.sidebar.classList.toggle('active');
+            });
+
+            // Коллекции
+            elements.newCollectionBtn.addEventListener('click', showNewCollectionModal);
+
+            // Шаблоны
+            elements.uploadTemplateBtn.addEventListener('click', showUploadTemplateModal);
+
+            // Переменные
+            elements.saveVariablesBtn.addEventListener('click', saveAllVariables);
+
+            // Рендеринг
+            elements.renderBtn.addEventListener('click', renderDocument);
+            elements.batchRenderBtn.addEventListener('click', batchRenderDocuments);
+
+            // Модальные окна
+            setupModalListeners();
+
+            // Drag and drop для загрузки файлов
+            setupFileUpload();
+        }
+
+        function setupModalListeners() {
+            // Новая коллекция
+            const newCollectionModal = document.getElementById('new-collection-modal');
+            const closeCollectionModal = document.getElementById('close-collection-modal');
+            const cancelCollection = document.getElementById('cancel-collection');
+            const newCollectionForm = document.getElementById('new-collection-form');
+
+            closeCollectionModal.addEventListener('click', () => newCollectionModal.classList.remove('active'));
+            cancelCollection.addEventListener('click', () => newCollectionModal.classList.remove('active'));
+
+            newCollectionForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('collection-name').value;
+                const description = document.getElementById('collection-desc').value;
+
+                await createCollection(name, description);
+                newCollectionModal.classList.remove('active');
+                newCollectionForm.reset();
+            });
+
+            // Загрузка шаблона
+            const uploadTemplateModal = document.getElementById('upload-template-modal');
+            const closeTemplateModal = document.getElementById('close-template-modal');
+            const cancelTemplate = document.getElementById('cancel-template');
+            const uploadTemplateForm = document.getElementById('upload-template-form');
+
+            closeTemplateModal.addEventListener('click', () => uploadTemplateModal.classList.remove('active'));
+            cancelTemplate.addEventListener('click', () => uploadTemplateModal.classList.remove('active'));
+
+            uploadTemplateForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!currentCollectionId) {
+                    showToast('Сначала выберите коллекцию', 'error');
+                    return;
+                }
+
+                const name = document.getElementById('template-name').value;
+                const fileInput = document.getElementById('template-file');
+
+                if (fileInput.files.length === 0) {
+                    showToast('Выберите файл шаблона', 'error');
+                    return;
+                }
+
+                await uploadTemplate(currentCollectionId, name, fileInput.files[0]);
+                uploadTemplateModal.classList.remove('active');
+                uploadTemplateForm.reset();
+                document.getElementById('selected-file').style.display = 'none';
+            });
+
+            // Метаданные переменной
+            const metadataModal = document.getElementById('variable-metadata-modal');
+            const closeMetadataModal = document.getElementById('close-metadata-modal');
+            const cancelMetadata = document.getElementById('cancel-metadata');
+            const metadataForm = document.getElementById('variable-metadata-form');
+
+            closeMetadataModal.addEventListener('click', () => metadataModal.classList.remove('active'));
+            cancelMetadata.addEventListener('click', () => metadataModal.classList.remove('active'));
+
+            metadataForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const varName = document.getElementById('metadata-var-name').value;
+                const displayName = document.getElementById('metadata-display-name').value;
+                const description = document.getElementById('metadata-description').value;
+                const required = document.getElementById('metadata-required').checked;
+                const uiOrder = parseInt(document.getElementById('metadata-ui-order').value);
+                const category = document.getElementById('metadata-category').value;
+
+                await updateVariableMetadata(currentCollectionId, varName, {
+                    display_name: displayName,
+                    description: description,
+                    required: required,
+                    ui_order: uiOrder,
+                    category: category
+                });
+
+                metadataModal.classList.remove('active');
+                metadataForm.reset();
+            });
+
+            // Закрытие модалок по клику вне окна
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+        }
+
+        function setupFileUpload() {
+            const fileUploadArea = document.getElementById('file-upload-area');
+            const fileInput = document.getElementById('template-file');
+            const selectedFile = document.getElementById('selected-file');
+            const fileName = document.getElementById('file-name');
+
+            // Клик по области загрузки
+            fileUploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            // Изменение файла
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    fileName.textContent = fileInput.files[0].name;
+                    selectedFile.style.display = 'block';
+                }
+            });
+
+            // Drag and drop
+            fileUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileUploadArea.style.borderColor = '#4361ee';
+                fileUploadArea.style.backgroundColor = 'rgba(67, 97, 238, 0.05)';
+            });
+
+            fileUploadArea.addEventListener('dragleave', () => {
+                fileUploadArea.style.borderColor = '#e0e0e0';
+                fileUploadArea.style.backgroundColor = '';
+            });
+
+            fileUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileUploadArea.style.borderColor = '#e0e0e0';
+                fileUploadArea.style.backgroundColor = '';
+
+                if (e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    if (file.name.endsWith('.docx')) {
+                        fileInput.files = e.dataTransfer.files;
+                        fileName.textContent = file.name;
+                        selectedFile.style.display = 'block';
+                    } else {
+                        showToast('Поддерживаются только файлы .docx', 'error');
+                    }
+                }
+            });
+        }
+
+        // ============ API функции ============
+
+        async function apiRequest(endpoint, method = 'GET', data = null, isFile = false) {
+            showLoading();
+
+            try {
+                const url = `${API_URL}${endpoint}`;
+                const options = {
+                    method: method,
+                    headers: {}
+                };
+
+                if (data && !isFile) {
+                    options.headers['Content-Type'] = 'application/json';
+                    options.body = JSON.stringify(data);
+                } else if (data && isFile) {
+                    options.body = data;
+                }
+
+                const response = await fetch(url, options);
+
+                hideLoading();
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${error}`);
+                }
+
+                if (response.headers.get('content-type')?.includes('application/json')) {
+                    return await response.json();
+                } else {
+                    return response;
+                }
+            } catch (error) {
+                hideLoading();
+                console.error('API Request Error:', error);
+                showToast(`Ошибка: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        async function testApiConnection() {
+            API_URL = elements.apiUrlInput.value.trim();
+            if (!API_URL) {
+                showToast('Введите URL API', 'error');
+                return;
+            }
+
+            try {
+                showLoading('Проверка подключения...');
+                const data = await apiRequest('/api/health');
+
+                elements.statusInfo.innerHTML = `
+            <p><i class="fas fa-check-circle" style="color: #4cc9f0;"></i> API доступен</p>
+            <p>Коллекций: ${data.collections_count}</p>
+            <p>Шаблонов: ${data.templates_count}</p>
+            <p>Время: ${new Date(data.timestamp).toLocaleTimeString()}</p>
+        `;
+
+                showToast('Подключение успешно установлено', 'success');
+                saveApiUrl();
+
+                // Загружаем коллекции
+                await loadCollections();
+
+            } catch (error) {
+                elements.statusInfo.innerHTML = `
+            <p><i class="fas fa-times-circle" style="color: #f72585;"></i> API недоступен</p>
+            <p>Проверьте URL и запущен ли сервер</p>
+        `;
+            }
+        }
+
+        function saveApiUrl() {
+            API_URL = elements.apiUrlInput.value.trim();
+            localStorage.setItem('docx_api_url', API_URL);
+        }
+
+        // ============ Коллекции ============
+
+        async function loadCollections() {
+            try {
+                const data = await apiRequest('/api/collections');
+                collections = data;
+                renderCollectionsList();
+
+                if (collections.length > 0 && !currentCollectionId) {
+                    selectCollection(collections[0].id);
+                }
+            } catch (error) {
+                console.error('Failed to load collections:', error);
+            }
+        }
+
+        function renderCollectionsList() {
+            const list = elements.collectionList;
+            list.innerHTML = '';
+
+            if (collections.length === 0) {
+                list.innerHTML = '<div class="empty-state"><p>Нет коллекций</p></div>';
+                return;
+            }
+
+            collections.forEach(collection => {
+                const item = document.createElement('li');
+                item.className = `collection-item ${collection.id === currentCollectionId ? 'active' : ''}`;
+                item.innerHTML = `
+            <div class="collection-name">${collection.name}</div>
+            <div class="collection-desc">${collection.description || 'Без описания'}</div>
+        `;
+
+                item.addEventListener('click', () => selectCollection(collection.id));
+                list.appendChild(item);
+            });
+        }
+
+        async function selectCollection(collectionId) {
+            currentCollectionId = collectionId;
+            renderCollectionsList();
+
+            // Загружаем данные коллекции
+            await loadCollectionTemplates();
+            await loadCollectionVariables();
+            updateTabsForCollection();
+        }
+
+        async function createCollection(name, description) {
+            try {
+                const formData = new FormData();
+                formData.append('name', name);
+                formData.append('description', description);
+
+                const response = await fetch(`${API_URL}/api/collections`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const collection = await response.json();
+                showToast(`Коллекция "${name}" создана`, 'success');
+
+                // Обновляем список коллекций
+                await loadCollections();
+                selectCollection(collection.id);
+
+                return collection;
+            } catch (error) {
+                showToast(`Ошибка создания коллекции: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        function showNewCollectionModal() {
+            document.getElementById('new-collection-modal').classList.add('active');
+        }
+
+        // ============ Шаблоны ============
+
+        async function loadCollectionTemplates() {
+            if (!currentCollectionId) return;
+
+            try {
+                const data = await apiRequest(`/api/collections/${currentCollectionId}/templates`);
+                templates = data;
+                renderTemplatesGrid();
+                updateTemplateSelects();
+            } catch (error) {
+                console.error('Failed to load templates:', error);
+            }
+        }
+
+        function renderTemplatesGrid() {
+            const grid = elements.templatesGrid;
+
+            if (templates.length === 0) {
+                grid.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-file-alt"></i>
+                <h3>Нет шаблонов</h3>
+                <p>Загрузите первый шаблон в коллекцию</p>
+            </div>
+        `;
+                return;
+            }
+
+            grid.innerHTML = '';
+
+            templates.forEach(template => {
+                const card = document.createElement('div');
+                card.className = 'template-card';
+
+                const textVars = Object.values(template.variables).filter(v => v.type === 'text');
+                const checkboxVars = Object.values(template.variables).filter(v => v.type === 'checkbox');
+
+                card.innerHTML = `
+            <div class="template-header">
+                <div>
+                    <div class="template-name">${template.name}</div>
+                    <div class="template-filename">${template.original_filename}</div>
+                </div>
+                <span class="badge">${Object.keys(template.variables).length} пер.</span>
+            </div>
+            <div class="template-vars">
+                ${textVars.slice(0, 3).map(v =>
+                    `<span class="var-badge text">${v.name}</span>`
+                ).join('')}
+                ${checkboxVars.slice(0, 3).map(v =>
+                    `<span class="var-badge checkbox">${v.name}</span>`
+                ).join('')}
+                ${Object.keys(template.variables).length > 6 ?
+                        `<span class="var-badge">+${Object.keys(template.variables).length - 6}</span>` : ''}
+            </div>
+            <div style="margin-top: 15px; font-size: 0.9rem; color: var(--gray-color);">
+                <i class="far fa-calendar"></i> ${new Date(template.created_at).toLocaleDateString()}
+            </div>
+        `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        async function uploadTemplate(collectionId, name, file) {
+            try {
+                showLoading('Загрузка шаблона...');
+
+                const formData = new FormData();
+                formData.append('name', name);
+                formData.append('file', file);
+
+                const response = await fetch(`${API_URL}/api/collections/${collectionId}/templates`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(error);
+                }
+
+                const template = await response.json();
+                showToast(`Шаблон "${name}" загружен`, 'success');
+
+                // Обновляем список шаблонов
+                await loadCollectionTemplates();
+
+                return template;
+            } catch (error) {
+                showToast(`Ошибка загрузки шаблона: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        function showUploadTemplateModal() {
+            if (!currentCollectionId) {
+                showToast('Сначала выберите коллекцию', 'error');
+                return;
+            }
+            document.getElementById('upload-template-modal').classList.add('active');
+        }
+
+        function updateTemplateSelects() {
+            // Для рендеринга одного документа
+            const renderSelect = elements.renderTemplateSelect;
+            renderSelect.innerHTML = '<option value="">Выберите шаблон...</option>';
+
+            templates.forEach(template => {
+                const option = document.createElement('option');
+                option.value = template.id;
+                option.textContent = template.name;
+                renderSelect.appendChild(option);
+            });
+
+            // Для пакетного рендеринга
+            const batchContainer = elements.batchTemplatesCheckboxes;
+            batchContainer.innerHTML = '';
+
+            templates.forEach(template => {
+                const div = document.createElement('div');
+                div.className = 'checkbox-group';
+                div.innerHTML = `
+            <input type="checkbox" id="batch-${template.id}" value="${template.id}" checked>
+            <label for="batch-${template.id}">${template.name}</label>
+        `;
+                batchContainer.appendChild(div);
+            });
+
+            // Обновляем формы переменных при выборе шаблона
+            renderSelect.addEventListener('change', () => {
+                const templateId = renderSelect.value;
+                if (templateId) {
+                    renderVariablesForm(templateId, 'render');
+                }
+            });
+        }
+
+        // ============ Переменные ============
+
+        async function loadCollectionVariables() {
+            if (!currentCollectionId) return;
+
+            try {
+                const data = await apiRequest(`/api/collections/${currentCollectionId}/variables`);
+                variables = data.variables || {};
+
+                // Загружаем общие значения переменных
+                const sharedVars = data.shared_variables || {};
+
+                // Объединяем с текущими значениями из переменных
+                Object.keys(variables).forEach(varName => {
+                    if (sharedVars[varName] !== undefined) {
+                        variables[varName].value = sharedVars[varName];
+                    }
+                });
+
+                renderVariablesList();
+                updateVariablesForms();
+            } catch (error) {
+                console.error('Failed to load variables:', error);
+            }
+        }
+
+        function renderVariablesList() {
+            const container = elements.variablesList;
+
+            if (Object.keys(variables).length === 0) {
+                container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-list"></i>
+                <h3>Нет переменных</h3>
+                <p>Загрузите шаблоны с переменными</p>
+            </div>
+        `;
+                return;
+            }
+
+            container.innerHTML = '';
+
+            // Сортируем переменные по количеству шаблонов и имени
+            const sortedVars = Object.entries(variables).sort((a, b) => {
+                // Сначала по количеству шаблонов (убывание)
+                const templatesA = a[1].templates_count || 0;
+                const templatesB = b[1].templates_count || 0;
+                if (templatesB !== templatesA) {
+                    return templatesB - templatesA;
+                }
+
+                // Затем по типу
+                if (a[1].type !== b[1].type) {
+                    return a[1].type === 'text' ? -1 : 1;
+                }
+
+                // Затем по имени
+                return a[0].localeCompare(b[0]);
+            });
+
+            sortedVars.forEach(([varName, varData]) => {
+                const item = document.createElement('div');
+                item.className = 'variable-item';
+
+                const displayName = varData.metadata?.display_name || varName;
+                const description = varData.metadata?.description || '';
+                const required = varData.metadata?.required ? ' (обязательная)' : '';
+
+                // Получаем информацию о том, в каких шаблонах используется переменная
+                const templatesCount = varData.templates_count || 0;
+                const occurrences = varData.occurrences || 0;
+                const totalOccurrences = varData.total_occurrences || varData.occurrences || 0;
+
+                // Создаем текст о том, в скольких шаблонах используется
+                let templatesInfo = '';
+                if (templatesCount > 0) {
+                    templatesInfo = `<div style="font-size: 0.9rem; color: var(--primary-color); margin-top: 5px;">
+                <i class="fas fa-file-alt"></i> Используется в ${templatesCount} шаблон${getRussianPlural(templatesCount, '', 'ах', 'ах')}
+                ${occurrences > 1 ? ` • ${totalOccurrences} вхождений` : ''}
+            </div>`;
+                }
+
+                item.innerHTML = `
+            <div class="variable-header">
+                <div>
+                    <div class="variable-name">${displayName}${required}</div>
+                    <div style="font-size: 0.9rem; color: var(--gray-color);">
+                        ${varName} • Тип: ${varData.type === 'checkbox' ? 'чекбокс' : 'текст'}
+                    </div>
+                    ${templatesInfo}
+                </div>
+                <span class="variable-type ${varData.type}">${varData.type}</span>
+            </div>
+            ${description ? `<p style="margin-top: 10px;">${description}</p>` : ''}
+            ${varData.contexts && varData.contexts.length > 0 ? `
+                <div class="variable-context">
+                    <strong>Контекст:</strong> ${varData.contexts[0].substring(0, 200)}${varData.contexts[0].length > 200 ? '...' : ''}
+                </div>
+            ` : ''}
+            <div style="margin-top: 15px; display: flex; gap: 10px; align-items: center;">
+                <button class="btn btn-outline btn-small edit-metadata-btn" data-var="${varName}">
+                    <i class="fas fa-cog"></i> Настройки
+                </button>
+                <div style="flex: 1;">
+                    ${varData.type === 'checkbox' ? `
+                        <div class="checkbox-group" style="margin: 0;">
+                            <input type="checkbox" 
+                                   class="var-value-input" 
+                                   data-var="${varName}"
+                                   id="var-checkbox-${varName}"
+                                   ${varData.value ? 'checked' : ''}>
+                            <label for="var-checkbox-${varName}" style="margin: 0;">Значение</label>
+                        </div>
+                    ` : `
+                        <input type="text" 
+                               class="form-control var-value-input" 
+                               data-var="${varName}"
+                               value="${varData.value || ''}" 
+                               placeholder="Введите значение">
+                    `}
+                </div>
+            </div>
+        `;
+
+                container.appendChild(item);
+            });
+
+            // Обработчики для кнопок редактирования метаданных
+            document.querySelectorAll('.edit-metadata-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const varName = e.target.getAttribute('data-var') ||
+                        e.target.closest('.edit-metadata-btn').getAttribute('data-var');
+                    showVariableMetadataModal(varName);
+                });
+            });
+
+            // Обработчики для полей ввода значений
+            document.querySelectorAll('.var-value-input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const varName = e.target.getAttribute('data-var');
+                    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+                    variables[varName].value = value;
+                });
+            });
+        }
+
+        // Вспомогательная функция для склонения русских слов
+        function getRussianPlural(number, one, few, many) {
+            const n = Math.abs(number) % 100;
+            const n1 = n % 10;
+
+            if (n > 10 && n < 20) return many;
+            if (n1 > 1 && n1 < 5) return few;
+            if (n1 == 1) return one;
+            return many;
+        }
+        function updateVariablesForms() {
+            // Форма для рендеринга одного документа
+            if (elements.renderTemplateSelect.value) {
+                renderVariablesForm(elements.renderTemplateSelect.value, 'render');
+            }
+
+            // Форма для пакетного рендеринга
+            renderVariablesForm(null, 'batch');
+        }
+
+        function renderVariablesForm(templateId, type) {
+            const container = type === 'render' ? elements.renderVariablesForm : elements.batchVariablesForm;
+            const template = templateId ? templates.find(t => t.id === templateId) : null;
+
+            // Для пакетного рендеринга используем все переменные коллекции
+            const templateVars = template ? template.variables : variables;
+
+            if (!templateVars || Object.keys(templateVars).length === 0) {
+                container.innerHTML = `
+            <div class="alert alert-success">
+                <i class="fas fa-info-circle"></i>
+                В выбранном шаблоне нет переменных
+            </div>
+        `;
+                return;
+            }
+
+            // Сортируем переменные по порядку в UI
+            const sortedVars = Object.entries(templateVars).sort((a, b) => {
+                const orderA = a[1].metadata?.ui_order || 0;
+                const orderB = b[1].metadata?.ui_order || 0;
+                return orderA - orderB;
+            });
+
+            let html = '<h3 style="margin-bottom: 20px;">Значения переменных</h3>';
+
+            // Добавляем информацию об общих переменных
+            if (type === 'batch') {
+                html += `
+            <div class="alert alert-success" style="margin-bottom: 20px;">
+                <i class="fas fa-info-circle"></i>
+                Значения будут применены ко всем выбранным шаблонам. 
+                Переменные с одинаковыми именами автоматически становятся общими.
+            </div>
+        `;
+            }
+
+            // Группируем по категориям
+            const varsByCategory = {};
+            sortedVars.forEach(([varName, varData]) => {
+                const category = varData.metadata?.category || 'general';
+                if (!varsByCategory[category]) {
+                    varsByCategory[category] = [];
+                }
+                varsByCategory[category].push([varName, varData]);
+            });
+
+            Object.entries(varsByCategory).forEach(([category, categoryVars]) => {
+                const categoryName = category === 'general' ? 'Основные' : category;
+                html += `<h4 style="margin: 25px 0 15px 0; color: var(--secondary-color);">
+            <i class="fas fa-folder"></i> ${categoryName}
+         </h4>`;
+
+                categoryVars.forEach(([varName, varData]) => {
+                    const displayName = varData.metadata?.display_name || varName;
+                    const description = varData.metadata?.description ?
+                        `<small style="display: block; color: var(--gray-color); margin-top: 5px;">${varData.metadata.description}</small>` : '';
+                    const required = varData.metadata?.required ?
+                        '<span style="color: var(--danger-color); margin-left: 5px;">*</span>' : '';
+
+                    // Добавляем информацию о том, является ли переменная общей
+                    let commonInfo = '';
+                    if (variables[varName]?.templates_count > 1) {
+                        commonInfo = `<small style="display: block; color: var(--primary-color); margin-top: 5px;">
+                    <i class="fas fa-link"></i> Общая переменная (используется в ${variables[varName].templates_count} шаблонах)
+                </small>`;
+                    }
+
+                    if (varData.type === 'checkbox') {
+                        html += `
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" 
+                                   id="${type}-${varName}" 
+                                   data-var="${varName}"
+                                   ${variables[varName]?.value ? 'checked' : ''}>
+                            <label for="${type}-${varName}" style="font-weight: 600;">
+                                ${displayName}${required}
+                            </label>
+                        </div>
+                        ${commonInfo}
+                        ${description}
+                    </div>
+                `;
+                    } else {
+                        html += `
+                    <div class="form-group">
+                        <label for="${type}-${varName}" style="font-weight: 600;">
+                            ${displayName}${required}
+                        </label>
+                        ${commonInfo}
+                        <input type="text" 
+                               class="form-control" 
+                               id="${type}-${varName}" 
+                               data-var="${varName}"
+                               value="${variables[varName]?.value || ''}"
+                               placeholder="Введите значение">
+                        ${description}
+                    </div>
+                `;
+                    }
+                });
+            });
+
+            container.innerHTML = html;
+
+            // Обработчики для полей ввода
+            container.querySelectorAll('input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const varName = e.target.getAttribute('data-var');
+                    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+
+                    // Обновляем значение в основной структуре
+                    if (variables[varName]) {
+                        variables[varName].value = value;
+                    }
+                });
+            });
+        }
+
+        function showVariableMetadataModal(varName) {
+            if (!variables[varName]) return;
+
+            const varData = variables[varName];
+            const metadata = varData.metadata || {};
+
+            document.getElementById('metadata-var-name').value = varName;
+            document.getElementById('metadata-display-name').value = metadata.display_name || varName;
+            document.getElementById('metadata-description').value = metadata.description || '';
+            document.getElementById('metadata-required').checked = metadata.required || false;
+            document.getElementById('metadata-ui-order').value = metadata.ui_order || 0;
+            document.getElementById('metadata-category').value = metadata.category || 'general';
+
+            document.getElementById('variable-metadata-modal').classList.add('active');
+        }
+
+        async function updateVariableMetadata(collectionId, varName, metadata) {
+            try {
+                await apiRequest(
+                    `/api/collections/${collectionId}/variables/${varName}/metadata`,
+                    'PUT',
+                    metadata
+                );
+
+                showToast(`Метаданные переменной "${varName}" обновлены`, 'success');
+
+                // Перезагружаем переменные для получения обновленных данных
+                await loadCollectionVariables();
+
+            } catch (error) {
+                showToast(`Ошибка обновления метаданных: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        async function loadCollectionVariablesStats() {
+            if (!currentCollectionId) return;
+
+            try {
+                const data = await apiRequest(`/api/collections/${currentCollectionId}/variables/stats`);
+                console.log('Статистика переменных:', data);
+
+                // Можно добавить отображение статистики в интерфейсе
+                if (data.stats) {
+                    console.log(`Уникальных переменных: ${data.stats.total_unique_variables}`);
+                    console.log(`Переменных типа "текст": ${data.stats.variables_by_type.text}`);
+                    console.log(`Переменных типа "чекбокс": ${data.stats.variables_by_type.checkbox}`);
+                }
+            } catch (error) {
+                console.error('Failed to load variables stats:', error);
+            }
+        }
+
+        async function saveAllVariables() {
+            if (!currentCollectionId) return;
+
+            try {
+                // Собираем все значения переменных
+                const varValues = {};
+                Object.entries(variables).forEach(([varName, varData]) => {
+                    if (varData.value !== undefined) {
+                        varValues[varName] = varData.value;
+                    }
+                });
+
+                await apiRequest(
+                    `/api/collections/${currentCollectionId}/variables/shared`,
+                    'PUT',
+                    varValues
+                );
+
+                showToast('Все переменные сохранены как общие для коллекции', 'success');
+
+                // Перезагружаем переменные для синхронизации
+                await loadCollectionVariables();
+
+            } catch (error) {
+                showToast(`Ошибка сохранения переменных: ${error.message}`, 'error');
+            }
+        }
+
+        // ============ Рендеринг ============
+
+        async function renderDocument() {
+            const templateId = elements.renderTemplateSelect.value;
+            if (!templateId) {
+                showToast('Выберите шаблон для рендеринга', 'error');
+                return;
+            }
+
+            // Собираем значения переменных из формы
+            const varValues = collectVariablesFromForm('render');
+
+            try {
+                showLoading('Рендеринг документа...');
+
+                // Преобразуем значения чекбоксов в boolean
+                Object.keys(varValues).forEach(key => {
+                    const varData = variables[key];
+                    if (varData && varData.type === 'checkbox') {
+                        varValues[key] = Boolean(varValues[key]);
+                    }
+                });
+
+                // Используем JSON версию API
+                const response = await fetch(`${API_URL}/api/render/single/json`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        template_id: templateId,
+                        variables: varValues
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(error);
+                }
+
+                // Скачиваем файл
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+
+                // Получаем имя файла из заголовка или генерируем
+                const contentDisposition = response.headers.get('content-disposition');
+                let filename = `rendered_${Date.now()}.docx`;
+                if (contentDisposition) {
+                    const matches = contentDisposition.match(/filename="?(.+)"?/i);
+                    if (matches && matches[1]) {
+                        filename = matches[1];
+                    }
+                }
+
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                showToast('Документ успешно отрендерен', 'success');
+
+            } catch (error) {
+                showToast(`Ошибка рендеринга: ${error.message}`, 'error');
+            }
+        }
+
+        async function batchRenderDocuments() {
+            if (!currentCollectionId) {
+                showToast('Выберите коллекцию', 'error');
+                return;
+            }
+
+            // Собираем выбранные шаблоны
+            const selectedTemplates = Array.from(
+                document.querySelectorAll('#batch-templates-checkboxes input:checked')
+            ).map(input => input.value);
+
+            if (selectedTemplates.length === 0) {
+                showToast('Выберите хотя бы один шаблон', 'error');
+                return;
+            }
+
+            // Собираем значения переменных
+            const varValues = collectVariablesFromForm('batch');
+
+            try {
+                showLoading('Пакетный рендеринг...');
+
+                // Преобразуем значения чекбоксов в boolean
+                Object.keys(varValues).forEach(key => {
+                    const varData = variables[key];
+                    if (varData && varData.type === 'checkbox') {
+                        varValues[key] = Boolean(varValues[key]);
+                    }
+                });
+
+                // Используем JSON версию API
+                const response = await fetch(`${API_URL}/api/render/batch/json`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        collection_id: currentCollectionId,
+                        template_ids: selectedTemplates,
+                        variables: varValues
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(error);
+                }
+
+                // Скачиваем ZIP архив
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `batch_rendered_${Date.now()}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                showToast(`Рендеринг ${selectedTemplates.length} документов завершен`, 'success');
+
+            } catch (error) {
+                showToast(`Ошибка пакетного рендеринга: ${error.message}`, 'error');
+            }
+        }
+
+        function collectVariablesFromForm(formType) {
+            const varValues = {};
+            const prefix = `${formType}-`;
+
+            // Собираем из полей формы
+            const formContainer = formType === 'render' ?
+                elements.renderVariablesForm : elements.batchVariablesForm;
+
+            if (formContainer) {
+                formContainer.querySelectorAll('input').forEach(input => {
+                    const varName = input.getAttribute('data-var');
+                    if (varName) {
+                        const value = input.type === 'checkbox' ? input.checked : input.value;
+                        varValues[varName] = value;
+                    }
+                });
+            }
+
+            return varValues;
+        }
+
+        // ============ Вспомогательные функции ============
+
+        function switchTab(tabId) {
+            // Обновляем активные кнопки
+            elements.tabBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-tab') === tabId) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Обновляем активные вкладки
+            elements.tabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === `${tabId}-tab`) {
+                    content.classList.add('active');
+                }
+            });
+
+            // Закрываем мобильное меню
+            elements.sidebar.classList.remove('active');
+        }
+
+        function updateTabsForCollection() {
+            if (currentCollectionId) {
+                // Включаем все вкладки
+                elements.tabBtns.forEach(btn => btn.disabled = false);
+
+                // Загружаем данные для активной вкладки
+                const activeTab = document.querySelector('.tab-btn.active');
+                if (activeTab) {
+                    const tabId = activeTab.getAttribute('data-tab');
+                    switch (tabId) {
+                        case 'variables':
+                            renderVariablesList();
+                            break;
+                        case 'render':
+                            updateTemplateSelects();
+                            break;
+                        case 'batch':
+                            updateTemplateSelects();
+                            break;
+                    }
+                }
+            } else {
+                // Отключаем вкладки кроме первой
+                elements.tabBtns.forEach((btn, index) => {
+                    if (index > 0) btn.disabled = true;
+                });
+            }
+        }
+
+        function showLoading(message = 'Загрузка...') {
+            elements.loadingText.textContent = message;
+            elements.loadingModal.classList.add('active');
+        }
+
+        function hideLoading() {
+            elements.loadingModal.classList.remove('active');
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = elements.toast;
+            toast.textContent = message;
+            toast.className = `toast toast-${type}`;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>
