@@ -21,19 +21,27 @@ def format_date_with_mappings(date_value: str, format_mappings: str, context: st
     """
     Форматирует дату согласно маппингу, заменяя placeholders в контексте.
     
+    Поддерживает два формата маппинга:
+    1. Стандартный: "DD=день MM=месяц YYYY=год" (placeholders слева)
+    2. Переиспользование: "ЧИСЛО=день МЕСЯЦ=месяц ГОД=год" (произвольные ключи слева)
+    
     date_value: строка в формате DD.MM.YYYY (может быть "22 .04.2004" с пробелами)
-    format_mappings: правила маппинга вида "DD=день MM=месяц YYYY=год"
-                     где DD, MM, YYYY - это placeholders в контексте
+    format_mappings: правила маппинга вида "КЛЮЧ=компонент КЛЮЧ=компонент"
+                     где КЛЮЧ - это placeholder в контексте (DD, ЧИСЛО и т.д.)
+                     компонент - это день/месяц/год (или на английском)
     context: текст из документа, содержащий placeholders (опционально)
     
     Возвращает контекст с заменёнными placeholders на части даты.
     Если context не задан, применяет замены к самому format_mappings.
     
-    Пример:
-    - date_value = "22.04.2004"
+    Примеры:
     - format_mappings = "DD=день MM=месяц YYYY=год"
-    - context = "число: DD месяц: MM год: YYYY"
-    - результат = "число: 22 месяц: 04 год: 2004"
+      context = "число: DD месяц: MM год: YYYY"
+      результат = "число: 22 месяц: 04 год: 2004"
+      
+    - format_mappings = "ЧИСЛО=день МЕСЯЦ=месяц ГОД=год"
+      context = "число: ЧИСЛО месяц: МЕСЯЦ год: ГОД"
+      результат = "число: 22 месяц: 04 год: 2004"
     """
     if not format_mappings:
         return context or date_value
@@ -47,26 +55,26 @@ def format_date_with_mappings(date_value: str, format_mappings: str, context: st
         
         day, month, year = parts[0], parts[1], parts[2]
         
-        # Очищаем format_mappings от лишних пробелов (оставляем только пробелы между правилами)
-        # Заменяем " =" на "=" и "= " на "="
+        # Очищаем format_mappings от лишних пробелов
         format_mappings_clean = format_mappings.replace(' =', '=').replace('= ', '=')
         
-        # Парсим маппинг: "DD=день MM=месяц YYYY=год"
-        # Результат: {'DD': '22', 'MM': '04', 'YYYY': '2004'}
+        # Парсим маппинг и строим словарь замен
+        # Поддерживаем оба формата:
+        # 1. "DD=день MM=месяц YYYY=год" → {'DD': '22', 'MM': '04', 'YYYY': '2004'}
+        # 2. "ЧИСЛО=день МЕСЯЦ=месяц ГОД=год" → {'ЧИСЛО': '22', 'МЕСЯЦ': '04', 'ГОД': '2004'}
         replacements = {}
         for rule in format_mappings_clean.split():
             if '=' in rule:
-                placeholder, partition = rule.split('=', 1)
-                # Обрезаем пробелы в placeholder
+                placeholder, component = rule.split('=', 1)
                 placeholder = placeholder.strip()
-                partition = partition.lower().strip()
+                component = component.lower().strip()
                 
                 value = None
-                if partition == 'день':
+                if component in ['день', 'day', 'd']:
                     value = day
-                elif partition == 'месяц':
+                elif component in ['месяц', 'month', 'm']:
                     value = month
-                elif partition == 'год':
+                elif component in ['год', 'year', 'y']:
                     value = year
                 
                 if value:

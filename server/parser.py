@@ -74,6 +74,7 @@ class CommentsParser(ParserPlugin):
 
         # Специальный случай: если комментарий заканчивается на разделитель, это означает
         # что комментарий содержит только имя переменной (переиспользование существующей переменной)
+        # или в 2-й строке может быть date_format_mappings для даты
         if comment_text.endswith(VARIABLE_DEFINITION_DELIMITER):
             var_name = comment_text[:-len(VARIABLE_DEFINITION_DELIMITER)].strip()
             metadata['variable_name'] = var_name
@@ -83,6 +84,22 @@ class CommentsParser(ParserPlugin):
             metadata['description'] = f"{metadata['type'].title()}: {var_name}"
             metadata['is_reuse'] = True
             return metadata
+        
+        # Проверить, заканчивается ли на разделитель (переиспользование с форматом даты)
+        # Формат: Дата рождения автора\\ЧИСЛО=день МЕСЯЦ=месяц ГОД=год
+        lines = comment_text.split(VARIABLE_DEFINITION_DELIMITER)
+        if len(lines) == 2:
+            var_name = lines[0].strip()
+            potential_mappings = lines[1].strip()
+            
+            # Проверить, это ли date_format_mappings (содержит =)
+            if '=' in potential_mappings and not var_name.endswith(VARIABLE_DEFINITION_DELIMITER):
+                metadata['variable_name'] = var_name
+                metadata['display_name'] = var_name.replace('_', ' ').title()
+                metadata['date_format_mappings'] = potential_mappings
+                metadata['is_reuse'] = True
+                metadata['type'] = 'date'  # Это переиспользование переменной типа date с форматом
+                return metadata
 
         parts = [p.strip() for p in comment_text.split(VARIABLE_DEFINITION_DELIMITER)]
         if len(parts) >= 1 and parts[0]:
