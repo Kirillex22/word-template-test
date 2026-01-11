@@ -194,6 +194,8 @@ class Storage:
             var_dict['occurrences_total'] = occurrences_count.get(k, {}).get('count', 0)
             var_dict['templates_count'] = len(occurrences_count.get(k, {}).get('templates', []))
             var_dict['authors'] = authors.get(k, [])
+            # DEBUG: Выводим тип переменной
+            print(f"  Переменная {k}: тип={var_dict.get('type')}, значение={v.value}")
             result[k] = var_dict
         
         return result
@@ -205,8 +207,12 @@ class Storage:
             return False
         try:
             vt = VariableType(var_type)
-        except Exception:
+        except Exception as e:
+            print(f"  ⚠ Не удалось распознать тип переменной '{var_type}': {e}")
             vt = VariableType.TEXT
+        
+        print(f"  Сохраняем переменную {var_name}: тип={vt.value}")
+        
         md = None
         if metadata:
             try:

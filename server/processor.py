@@ -112,10 +112,15 @@ class CommentsDocumentProcessor:
         try:
             self._unzip_docx(docx_path, workdir)
 
-            comments_xml = workdir / "word" / "comments.xml"
-            comments = self.parser.parse_comments_xml(comments_xml)
-
             doc_xml = workdir / "word" / "document.xml"
+            comments_xml = workdir / "word" / "comments.xml"
+            
+            # Инжектим виртуальные комментарии для legacy checkboxes
+            print("Поиск и инжекция legacy checkboxes...")
+            legacy_checkboxes_added = self.parser.find_and_inject_legacy_checkboxes(doc_xml, comments_xml)
+            
+            # Парсим все комментарии (включая добавленные виртуальные для legacy checkboxes)
+            comments = self.parser.parse_comments_xml(comments_xml)
             comment_refs = self.parser.find_comment_references_in_document(doc_xml)
 
             variables = {}
@@ -202,12 +207,16 @@ class CommentsDocumentProcessor:
             # Значения коллекционных переменных будут применяться при рендеринге; здесь мы только собираем ссылки и
             # при необходимости создаём определения в коллекции (см. выше)
 
+            # Переупаковываем DOCX с инжектированными комментариями для legacy checkboxes
+            # Это необходимо чтобы сохранить виртуальные комментарии в файле шаблона
+            self._rezip_docx(workdir, docx_path)
+            
             file_hash = self.calculate_file_hash(docx_path)
 
             print(f"Найдено переменных в примечаниях: {len(variables)}")
             for var_name, var in variables.items():
-                print(f"  - {var.name} ({var.type.value}) - IDs комментариев: {', '.join(var.comment_ids)}")
-
+                print(f"  - {var.name} ({var.type.value}) - IDs: {', '.join(var.comment_ids)}")
+            
             return variables, file_hash
 
         finally:
@@ -292,6 +301,7 @@ class CommentsDocumentProcessor:
 
                 # Проходим по всем вхождениям переменной (comment_ids)
                 for comment_id in getattr(template_var, 'comment_ids', []):
+                        
                     comment_start = root.find(
                         f".//{{{WORD_NS}}}commentRangeStart[@{{{WORD_NS}}}id='{comment_id}']"
                     )
@@ -366,7 +376,20 @@ class CommentsDocumentProcessor:
         current = comment_start.getnext()
         while current is not None and current != comment_end:
             elements_to_replace.append(current)
+            # Отладка: выводим tag каждого элемента
+            print(f"    Элемент между комментариями: {current.tag}")
+            # Выводим дочерние элементы
+            for child in current:
+                print(f"      ├─ {child.tag}")
+                # Для instrText выводим содержимое
+                if 'instrText' in child.tag:
+                    print(f"      │  text: {child.text}")
+                # Для t элементов выводим текст
+                if child.tag.endswith('t'):
+                    print(f"      │  text: {child.text}")
             current = current.getnext()
+        
+        print(f"    Всего элементов между commentStart и commentEnd: {len(elements_to_replace)}")
 
         if not elements_to_replace:
             new_run = self._create_value_element(var_type, value)
@@ -391,31 +414,69 @@ class CommentsDocumentProcessor:
     def _has_existing_checkbox(self, elements) -> bool:
         """Проверяет, есть ли в элементах существующий чекбокс"""
         for elem in elements:
-            # Проверяем FORMCHECKBOX
-            instr_text = elem.find(f".//{{{WORD_NS}}}instrText")
-            if instr_text is not None and instr_text.text and 'FORMCHECKBOX' in instr_text.text:
-                return True
+            # Проверяем FORMCHECKBOX - ищем рекурсивно со всей иерархией
+            for instr_text in elem.findall(f".//{{{WORD_NS}}}instrText"):
+                if instr_text.text and 'FORMCHECKBOX' in instr_text.text:
+                    print(f"      ✓ Найден instrText с FORMCHECKBOX")
+                    return True
             
             # Проверяем символы чекбоксов
             for t in elem.findall(f".//{{{WORD_NS}}}t"):
                 if t.text and ('☐' in t.text or '☑' in t.text or '✓' in t.text or '□' in t.text):
+                    print(f"      ✓ Найден символьный чекбокс в тексте")
                     return True
         return False
 
     def _update_existing_checkbox(self, elements, checked: bool):
         """Обновляет существующий чекбокс"""
         for elem in elements:
-            # 1. Legacy FORMCHECKBOX
-            instr_text = elem.find(f".//{{{WORD_NS}}}instrText")
-            if instr_text is not None and instr_text.text and 'FORMCHECKBOX' in instr_text.text:
-                checkBox = elem.find(f".//{{{WORD_NS}}}checkBox")
-                if checkBox is not None:
-                    default_elem = checkBox.find(f".//{{{WORD_NS}}}default")
-                    if default_elem is not None:
-                        new_value = "1" if checked else "0"
-                        default_elem.set(W+"val", new_value)
-                        print(f"    ✓ Legacy чекбокс обновлен: {new_value}")
-                        return
+            # 1. Legacy FORMCHECKBOX - ищем рекурсивно
+            for instr_text in elem.findall(f".//{{{WORD_NS}}}instrText"):
+                if instr_text.text and 'FORMCHECKBOX' in instr_text.text:
+                    # Ищем parent run и внутри него checkBox
+                    r_parent = instr_text.getparent()
+                    if r_parent is not None:
+                        # DEBUG: выведем структуру parent элемента и его соседей
+                        print(f"    DEBUG: r_parent tag={r_parent.tag}")
+                        print(f"    DEBUG: r_parent children: {[child.tag for child in r_parent]}")
+                        print(f"    DEBUG: r_parent siblings: {[sibling.tag for sibling in r_parent.itersiblings()]}")
+                        
+                        # Ищем checkBox в parent
+                        checkBox = r_parent.find(f".//{{{WORD_NS}}}checkBox")
+                        if checkBox is not None:
+                            print(f"    DEBUG: checkBox найден в parent")
+                            default_elem = checkBox.find(f".//{{{WORD_NS}}}default")
+                            if default_elem is not None:
+                                new_value = "1" if checked else "0"
+                                default_elem.set(W+"val", new_value)
+                                print(f"    ✓ Legacy чекбокс обновлен: {new_value}")
+                                return
+                        else:
+                            print(f"    DEBUG: checkBox не найден в parent, ищем в соседях")
+                            # Может быть checkBox в следующем run?
+                            for sibling in r_parent.itersiblings():
+                                checkBox = sibling.find(f".//{{{WORD_NS}}}checkBox")
+                                if checkBox is not None:
+                                    print(f"    DEBUG: checkBox найден в sibling")
+                                    default_elem = checkBox.find(f".//{{{WORD_NS}}}default")
+                                    if default_elem is not None:
+                                        new_value = "1" if checked else "0"
+                                        default_elem.set(W+"val", new_value)
+                                        print(f"    ✓ Legacy чекбокс обновлен: {new_value}")
+                                        return
+                            # Еще вариант - checkBox в parent родителя (paragraph)
+                            p_parent = r_parent.getparent()
+                            if p_parent is not None:
+                                print(f"    DEBUG: ищем в p_parent={p_parent.tag}")
+                                checkBox = p_parent.find(f".//{{{WORD_NS}}}checkBox")
+                                if checkBox is not None:
+                                    print(f"    DEBUG: checkBox найден в p_parent")
+                                    default_elem = checkBox.find(f".//{{{WORD_NS}}}default")
+                                    if default_elem is not None:
+                                        new_value = "1" if checked else "0"
+                                        default_elem.set(W+"val", new_value)
+                                        print(f"    ✓ Legacy чекбокс обновлен: {new_value}")
+                                        return
             
             # 2. Символьные чекбоксы
             for t in elem.findall(f".//{{{WORD_NS}}}t"):
@@ -661,14 +722,17 @@ class CommentsDocumentProcessor:
         if not collection:
             raise ValueError(f"Collection {collection_id} not found")
 
-        variables, file_hash = self.scan_template(docx_file_path, collection_id)
-
         template_id = str(uuid.uuid4())
         templates_dir = BASE_STORAGE_PATH / "templates" / collection_id
         templates_dir.mkdir(parents=True, exist_ok=True)
 
         template_file_path = templates_dir / f"{template_id}.docx"
+        
+        # Копируем файл в templates_dir ПЕРЕД сканированием чтобы scan_template переупаковал его там
         shutil.copy2(docx_file_path, template_file_path)
+        
+        # Сканируем шаблон - это добавит виртуальные комментарии и переупакует файл
+        variables, file_hash = self.scan_template(template_file_path, collection_id)
 
         template = DocumentTemplate(
             id=template_id,
@@ -792,6 +856,25 @@ class CommentsDocumentProcessor:
         # persist
         self.storage._save_to_disk()
         return template
+
+    def docx_to_pdf(self, docx_path: Path) -> Path:
+        """Конвертирует DOCX в PDF и возвращает путь к PDF файлу"""
+        try:
+            from docx2pdf import convert
+            
+            pdf_path = docx_path.parent / f"{docx_path.stem}.pdf"
+            
+            # Конвертируем
+            convert(str(docx_path), str(pdf_path))
+            
+            if pdf_path.exists():
+                print(f"✓ PDF создан: {pdf_path}")
+                return pdf_path
+            else:
+                raise Exception("PDF файл не был создан")
+        except Exception as e:
+            print(f"⚠ Ошибка при конвертации в PDF: {e}")
+            raise Exception(f"Ошибка конвертации: {str(e)}")
 
     def _unzip_docx(self, src, dst):
         """Распаковывает DOCX"""

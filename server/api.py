@@ -239,6 +239,32 @@ async def render_single_document_json(data: dict):
         raise HTTPException(status_code=400, detail=str(e))
 
 
+@app.post("/api/render/preview")
+async def render_preview(data: dict):
+    """Рендерит документ и конвертирует его в PDF для предпросмотра"""
+    try:
+        template_id = data.get('template_id')
+        variables = data.get('variables', {})
+
+        if not template_id:
+            raise HTTPException(status_code=400, detail="template_id is required")
+
+        # Рендерим документ
+        rendered_docx = processor.render_document(template_id, variables)
+        
+        # Конвертируем в PDF
+        pdf_path = processor.docx_to_pdf(rendered_docx)
+
+        return FileResponse(
+            pdf_path,
+            media_type='application/pdf',
+            filename=pdf_path.name
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
 @app.get('/api/collections/{collection_id}/aggregate-variables')
 async def aggregate_variables(collection_id: str, template_ids: str = None):
     """Возвращает агрегированные переменные по выбранным шаблонам в коллекции.

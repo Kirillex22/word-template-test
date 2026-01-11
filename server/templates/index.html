@@ -367,6 +367,12 @@
             }
         }
     </style>
+    <!-- PDF.js для предпросмотра PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        // Настраиваем worker для PDF.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
 </head>
 
 <body>
@@ -477,9 +483,39 @@
 
             <div id="renderVariablesSection"></div>
 
-            <div class="section">
-                <button onclick="performRender()" style="width: 100%; padding: 14px; font-size: 1.1em;">⬇ Сгенерировать
-                    и скачать документ</button>
+            <div class="section" style="display: flex; gap: 10px;">
+                <button onclick="showPdfPreview()"
+                    style="flex: 1; padding: 14px; font-size: 1.1em; background: #667eea;">👁 Предпросмотр PDF</button>
+                <button onclick="performRender()" style="flex: 1; padding: 14px; font-size: 1.1em;">⬇ Скачать
+                    документ</button>
+            </div>
+        </div>
+
+        <!-- PDF ПРЕДПРОСМОТР MODAL -->
+        <div id="pdfModal"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000;">
+            <div
+                style="position: relative; width: 90%; height: 90%; margin: 5% auto; background: white; border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #eee;">
+                    <h2 style="margin: 0;">Предпросмотр PDF</h2>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button onclick="previousPage()"
+                            style="padding: 8px 15px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer;">←
+                            Предыдущая</button>
+                        <span id="pageInfo" style="min-width: 100px; text-align: center;">Стр. 1</span>
+                        <button onclick="nextPage()"
+                            style="padding: 8px 15px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer;">Следующая
+                            →</button>
+                        <button onclick="closePdfPreview()"
+                            style="padding: 8px 15px; background: #999; color: white; border: none; border-radius: 6px; cursor: pointer;">✕
+                            Закрыть</button>
+                    </div>
+                </div>
+                <div id="pdfContainer"
+                    style="flex: 1; overflow: auto; display: flex; justify-content: center; align-items: flex-start; background: #f0f0f0; padding: 20px;">
+                    <canvas id="pdfCanvas" style="max-width: 100%; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"></canvas>
+                </div>
             </div>
         </div>
 
@@ -985,6 +1021,103 @@
             } catch (e) {
                 showStatus('Ошибка: ' + e.message, 'error');
             }
+        }
+
+        // ===== PDF ПРЕДПРОСМОТР =====
+        let currentPdfDoc = null;
+        let currentPageNum = 1;
+
+        async function showPdfPreview() {
+            const templateId = document.getElementById('renderTemplate').value;
+            if (!templateId) {
+                showStatus('Выберите шаблон', 'error');
+                return;
+            }
+
+            // Собираем значения переменных
+            const variables = {};
+            document.querySelectorAll('[data-var-name]').forEach(input => {
+                const name = input.dataset.varName;
+                if (input.type === 'checkbox') {
+                    variables[name] = input.checked;
+                } else {
+                    variables[name] = input.value;
+                }
+            });
+
+            try {
+                showStatus('Генерируется PDF...', 'success');
+
+                const resp = await fetch('/api/render/preview', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ template_id: templateId, variables })
+                });
+
+                if (!resp.ok) throw new Error('Ошибка генерации PDF');
+
+                const blob = await resp.blob();
+                const url = URL.createObjectURL(blob);
+
+                // Загружаем PDF с помощью PDF.js
+                pdfjsLib.getDocument(url).promise.then(pdf => {
+                    currentPdfDoc = pdf;
+                    currentPageNum = 1;
+                    renderPdfPage(1);
+                    document.getElementById('pdfModal').style.display = 'flex';
+                    showStatus('PDF готов к просмотру ✓');
+                }).catch(err => {
+                    showStatus('Ошибка при загрузке PDF: ' + err.message, 'error');
+                });
+            } catch (e) {
+                showStatus('Ошибка: ' + e.message, 'error');
+            }
+        }
+
+        async function renderPdfPage(pageNum) {
+            if (!currentPdfDoc) return;
+
+            const page = await currentPdfDoc.getPage(pageNum);
+            const canvas = document.getElementById('pdfCanvas');
+            const context = canvas.getContext('2d');
+            const scale = 1.5;
+            const viewport = page.getViewport({ scale });
+
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            const renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+
+            await page.render(renderContext).promise;
+
+            // Обновляем информацию о странице
+            const totalPages = currentPdfDoc.numPages;
+            document.getElementById('pageInfo').textContent = `Стр. ${pageNum} из ${totalPages}`;
+        }
+
+        function nextPage() {
+            if (!currentPdfDoc) return;
+            if (currentPageNum < currentPdfDoc.numPages) {
+                currentPageNum++;
+                renderPdfPage(currentPageNum);
+            }
+        }
+
+        function previousPage() {
+            if (!currentPdfDoc) return;
+            if (currentPageNum > 1) {
+                currentPageNum--;
+                renderPdfPage(currentPageNum);
+            }
+        }
+
+        function closePdfPreview() {
+            document.getElementById('pdfModal').style.display = 'none';
+            currentPdfDoc = null;
+            currentPageNum = 1;
         }
 
         // ===== BATCH РЕНДЕРИНГ =====
